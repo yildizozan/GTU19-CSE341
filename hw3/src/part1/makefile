@@ -10,7 +10,7 @@ all:
 	${CC} -o ${NAME} ${NAME}.tab.c lex.yy.c
 
 clean:
-	rm -rf *.o ${NAME}.tab.* ${NAME}.output
+	rm -rf *.o ${NAME}.tab.* ${NAME}.output lex.yy.c
 
 run:
 	./${CC} code.g++
