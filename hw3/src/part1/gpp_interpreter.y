@@ -1,6 +1,10 @@
-
 %{
 #include <stdio.h>
+#include <stdbool.h>
+
+#ifdef YYDEBUG
+  yydebug = 1;
+#endif
 
 int yylex();
 int yyerror(char *s);
@@ -41,10 +45,22 @@ int yyerror(char *s);
 %token VALUE
 %token IDENTIFIER
 
+%type <int_val> EXPI
+
+%type <int_val> VALUE
+%type <str_val> IDENTIFIER
+
+%union {
+    char *str_val;
+    int int_val;
+}
+
+%start START
 
 %%
 
-START	:	INPUT
+START	: %empty
+		| INPUT
 		;
 
 INPUT	: EXPI
@@ -54,18 +70,16 @@ INPUT	: EXPI
 LISTVALUE	: OP_OC OP_OP VALUES OP_OP
 			;
 
-VALUES	: VALUES VALUE
-		| VALUES
+VALUES	: VALUE
+		| VALUE VALUES	
 		;
 
 
-EXPI	: OP_OP OP_PLUS EXPI EXPI OP_CP		
-		| OP_OP OP_MINUS EXPI EXPI OP_CP
-		| OP_OP OP_MULT EXPI EXPI OP_CP
-		| OP_OP OP_DIV EXPI EXPI OP_CP
-		| IDENTIFIER
+EXPI	: OP_OP OP_PLUS EXPI EXPI OP_CP		{ printf("+ %d %d", $3, $4); $$ = $3 + $4; printf("+ %s", $$); }
+		| OP_OP OP_MINUS EXPI EXPI OP_CP	{ printf("- %s %s", $3, $4); $$ = $3 - $4; }
+		| OP_OP OP_MULT EXPI EXPI OP_CP		{ $$ = $3 * $4; }
+		| OP_OP OP_DIV EXPI EXPI OP_CP		{ $$ = $3 / $4; }
 		| VALUE
-		| OP_OP IDENTIFIER EXPLISTI OP_CP
 		;
 
 EXPB	: OP_OP KW_AND EXPB EXPB OP_CP
@@ -104,10 +118,6 @@ EXPI	: OP_OP KW_IF EXPB EXPLISTI EXPLISTI OP_CP
 /* EXPI -> (while (EXPB) EXPLISTI) */
 /* EXPI -> (for (IDENTIFIER EXPI EXPI) EXPLISTI) */
 
-
-
-
-
 %%
 
 int yyerror(char *s)
@@ -116,37 +126,7 @@ int yyerror(char *s)
 	return 0;
 }
 
-/*** Code Section prints the number of 
-capital letter present in the given input **/
-int yywrap(){} 
-int main(int argc, char *argv[]) { 
-
-    // Explanation: 
-    // yywrap() - wraps the above rule section 
-    // yyin - takes the file pointer which contains the input
-    // yylex() - this is the main flex function which runs the Rule Section
-    // yytext is the text in the buffer 
-
-    // Uncomment the lines below 
-    // to take input from file 
-    FILE *fp;
-    fp = fopen(argv[1],"r"); 
-    if (fp == NULL) {
-        perror("Unable to open source code!");
-        return 1;
-    }
-
-    char buffer[128];
-
-    yyin = fp;
-    //while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-    //    yyin = buffer;
-    //}
-     
-    yylex();
-
-    // Close file before exit program
-    fclose(fp);
-
-    return 0; 
-} 
+int main()
+{
+    return yyparse();
+}

@@ -1,21 +1,14 @@
-/*** Definition Section has one variable 
-which can be accessed inside yylex() 
-and main() ***/
+%option noyywrap
+
 %{ 
     #include "gpp_interpreter.tab.h"
 %}
-
-ERROR 1
 
 comment     ;;.*
 number      [1-9][0-9]*
 id          [a-zA-Z][a-zA-Z0-9_]*
 NULL        0
 
-/*  Rule Section has three rules, first rule
-    matches with capital letters, second rule
-    matches with any character except newline and
-    third rule does not take input after the enter */
 %%
 
 [" "\t\n]   ; /* Ignores */

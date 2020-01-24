@@ -7,10 +7,10 @@ NAME=gpp_interpreter
 all:
 	flex -l ${NAME}.l
 	bison -d ${NAME}.y
-	${CC} -o ${NAME} ${NAME}.tab.c lex.yy.c
+	${CC} -o ${NAME} ${NAME}.tab.c lex.yy.c ${CFLAGS}
 
 clean:
-	rm -rf *.o ${NAME}.tab.* ${NAME}.output
+	rm -rf *.o lex.yy.c ${NAME}.tab.* ${NAME}.output
 
 run:
 	./${CC} code.g++
